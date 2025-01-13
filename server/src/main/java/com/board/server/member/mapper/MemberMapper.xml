@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.board.server.member.mapper.MemberMapper">
+
+    <resultMap id="memberDtoResultMap" type="com.board.server.member.dao.MemberDao">
+        <result property="sequence" column="sequence"/>
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="age" column="age"/>
+        <result property="createDate" column="create_date"/>
+    </resultMap>
+
+    <!-- 단일 멤버 조회 -->
+    <select id="findById" resultMap="memberDtoResultMap">
+        SELECT sequence, id, name, age, create_date
+        FROM tbl_member
+        WHERE sequence = #{sequence}
+        AND status = 1
+    </select>
+
+    <!-- 모든 멤버 조회 -->
+    <select id="findAll" resultMap="memberDtoResultMap">
+        SELECT sequence, id, name, age, create_date
+        FROM tbl_member
+        WHERE status = 1
+        ORDER BY create_date DESC
+    </select>
+
+    <!-- 단일 맴버 삽입 -->
+    <insert id="save" parameterType="com.board.server.member.dto.request.MemberRequestDto">
+        INSERT INTO tbl_member(id, name, age, create_date)
+        VALUES (#{id}, #{name}, #{age}, CURRENT_TIMESTAMP)
+    </insert>
+
+    <!-- 단일 맴버 수정 -->
+    <update id="updateById" parameterType="com.board.server.member.dto.request.MemberRequestDto">
+        UPDATE tbl_member
+        <set>
+            <if test="id != null">id = #{id},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="age != null">age = #{age},</if>
+        </set>
+        WHERE sequence = #{sequence}
+    </update>
+
+    <!-- 단일 맴버 삭제 -->
+    <update id="deleteBySequences" parameterType="java.util.List">
+        UPDATE tbl_member
+        SET status = -1
+        WHERE sequence IN
+        <foreach collection="list" item="requestDto" open="(" close=")" separator=",">
+            #{requestDto.sequence}
+        </foreach>
+    </update>
+
+</mapper>
